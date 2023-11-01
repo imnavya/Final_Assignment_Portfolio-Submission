@@ -1,0 +1,36 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model IEnumerable<ScanDetails>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "View Reports";
+}
+
+<div class="container">
+    <h2>View Uploaded Reports</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Scan Name</th>
+                <th>Date Taken</th>
+                <th>View Report</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var scan in Model)
+            {
+                <tr>
+                    <td>@scan.FileName</td>
+                    <td>@scan.DateTaken.ToShortDateString()</td>
+                    @*<td>
+            <a href="@Url.Content(scan.FilePath)" target="_blank">View</a>
+        </td>*@
+                    <td>
+                        <a href="@Url.Action("ViewReportDetails", "Doctor", new { id = scan.ScanID })">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

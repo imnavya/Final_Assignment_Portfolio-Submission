@@ -1,0 +1,128 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model Appointments
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Book Appointment";
+}
+
+<link href="~/Content/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Content/css/style.css" rel="stylesheet" />
+<link href="~/Content/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+
+<h2>Book Appointment</h2>
+
+@using (Html.BeginForm("BookAppointment", "Appointment", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.DoctorID, "Select Doctor")
+        @Html.DropDownListFor(m => m.DoctorID, Model.DoctorsList, "Please choose a Doctor...", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.DoctorID)
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Available Appointments")
+        <select id="availableAppointments" class="form-control" name="AppointmentDttm"></select>
+    </div>
+    <div id='calendar'></div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Notes, "Additional Notes")
+        @Html.TextAreaFor(m => m.Notes, new { htmlAttributes = new { @class = "form-control", rows = "4" } })
+        @Html.ValidationMessageFor(m => m.Notes)
+    </div>
+
+    @Html.HiddenFor(m => m.Status, "Confirmed")
+
+    <div class="form-group">
+        <input type="submit" value="Book Appointment" class="btn btn-primary" />
+    </div>
+}
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
+    <script src="~/Scripts/fullcalendar.min.js"></script>
+    
+    <script type="text/javascript">
+    $(document).ready(function () {
+        var availableAppointments = [];
+
+        function fetchDoctorId() {
+            return $('#DoctorID').val();
+        }
+
+        $('#calendar').fullCalendar({
+            selectable: true,
+            select: function (start, end, jsEvent, view) {
+                var selectedDate = start.format('YYYY-MM-DD');  
+                console.log("Selected Date:", selectedDate);
+                console.log("Total AVAILABLE appointments:", availableAppointments.length);
+
+                // Check if there are any available timeslots for the selected date
+                var matchingAppointments = availableAppointments.filter(function (appointment) {
+                    console.log("Matching Dates are:", moment.utc(appointment).format('YYYY-MM-DD'));
+                    return moment.utc(appointment).format('YYYY-MM-DD') === selectedDate;
+                });
+                console.log("Total MATCHING appointments:", matchingAppointments.length);
+                if (matchingAppointments.length > 0) {
+                    var dropdown = $('#availableAppointments');
+                    dropdown.empty();
+
+                    // Append each matching appointment to the dropdown
+                    matchingAppointments.forEach(function (appointment) {
+                        dropdown.append($('<option>', {
+                            value: appointment,
+                            text: moment.utc(appointment).format('DD-MM-YYYY HH:mm:ss')  
+                        }));
+                    });
+
+                    
+                    dropdown.val(matchingAppointments);
+
+                } else {
+                    alert("No available slots");
+                }
+            },
+            events: function (start, end, timezone, callback) {
+                $.ajax({
+                    url: '/Appointment/GetBookedApptTimes',
+                    type: 'GET',
+                    data: { doctorId: fetchDoctorId() },
+                    success: function (data) {
+                        data.forEach(function (event) {
+                            event.start = moment(event.start, "DD-MM-YYYY hh:mm A").toISOString();
+                        });
+                        callback(data);
+                    },
+                    error: function () {
+                        alert('There was an error fetching booked appointments.');
+                    }
+                });
+            },
+            eventSources: [{
+                url: '/Appointment/GetAvailableApptTimes',
+                type: 'GET',
+                data: {
+                    doctorId: fetchDoctorId
+                },
+                color: 'green',
+                success: function (data) {
+                    availableAppointments = data.map(event => {
+                        event.start = moment(event.start, "DD-MM-YYYY hh:mm A").toISOString();
+                        return event.start;
+                    });
+                    console.log("Available Appointments:", availableAppointments); 
+                }
+            }]
+        });
+
+        // Refreshing the calendar on doctor selection change
+        $('#DoctorID').change(function () {
+            $('#calendar').fullCalendar('refetchEvents');
+        });
+    });
+
+
+    </script>
+}

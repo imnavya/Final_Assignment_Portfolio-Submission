@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "Contact";
+}
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css" rel="stylesheet">
+
+<main aria-labelledby="title" class="container mt-4">
+    <h2 id="title" class="mb-4">@ViewBag.Title.</h2>
+    <h3 class="mb-4">@ViewBag.Message</h3>
+
+    <div class="row">
+        <div class="col-md-6">
+            <address>
+                <strong>OmniScanMRI Main Office</strong><br>
+                85 Collins Street<br />
+                Melbourne, VIC 3000<br />
+                <abbr title="Phone">P:</abbr>
+                (03) 1234 5678
+            </address>
+
+            <address>
+                <strong>OmniScanMRI West Center</strong><br>
+                120 Spencer Street<br />
+                Melbourne, VIC 3000<br />
+                <abbr title="Phone">P:</abbr>
+                (03) 2345 6789
+            </address>
+        </div>
+
+        <div class="col-md-6">
+            <address>
+                <strong>OmniScanMRI East Clinic</strong><br>
+                250 Elizabeth Street<br />
+                Melbourne, VIC 3000<br />
+                <abbr title="Phone">P:</abbr>
+                (03) 3456 7890
+            </address>
+
+            <address>
+                <strong>Support:</strong> <a href="mailto:Support@omniscanmri.com.au">Support@omniscanmri.com.au</a><br />
+                <strong>Marketing:</strong> <a href="mailto:Marketing@omniscanmri.com.au">Marketing@omniscanmri.com.au</a>
+            </address>
+        </div>
+    </div>
+
+
+    
+    <h4 class="mt-4 mb-4">Search & Directions</h4> 
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <input id="search-box" type="text" class="form-control" placeholder="Search places...">
+        </div>
+        <div class="col-md-4">
+            <input id="start-location" type="text" class="form-control" placeholder="Start Location">
+        </div>
+        <div class="col-md-4">
+            <input id="end-location" type="text" class="form-control" placeholder="End Location">
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4"></div> 
+        <div class="col-md-4">
+            <button onclick="getDirections()" class="btn btn-primary">Get Directions</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div id="map" style="height: 500px;"></div>
+        </div>
+    </div>
+
+</main>
+
+
+@section scripts {
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js"></script>
+    <script src="~/Scripts/polyline.js"></script>
+
+
+    <script>
+        // Mapbox Initialization
+        mapboxgl.accessToken = '@ViewBag.MapboxApiKey';
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [144.9631, -37.8136], 
+            zoom: 10
+        });
+    </script>
+
+    <script>
+        document.getElementById('search-box').addEventListener('keyup', function (event) {
+            if (event.key === "Enter") { 
+                var query = event.target.value;
+                fetch('/Home/ProxyMapboxRequest?query=geocoding/v5/mapbox.places/' + query + '.json?access_token=' + '@ViewBag.MapboxApiKey')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.features && data.features.length) {
+                            var firstResult = data.features[0];
+                            
+                            if (window.searchMarker) {
+                                window.searchMarker.remove();
+                            }
+
+                            window.searchMarker = new mapboxgl.Marker({color: "#3498DB"}) 
+                                .setLngLat(firstResult.geometry.coordinates)
+                                .addTo(map);
+
+                            
+                            map.flyTo({
+                                center: firstResult.geometry.coordinates,
+                                zoom: 15, 
+                                essential: true
+                            });
+                        }
+                    });
+            }
+        });
+        function getCoordinatesForPlace(placeName) {
+            return fetch('/Home/ProxyMapboxRequest?query=geocoding/v5/mapbox.places/' + placeName + '.json?access_token=' + '@ViewBag.MapboxApiKey')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Geocoding API Response for", placeName, ":", data);
+                    if (data && data.features && data.features.length > 0) {
+                        return data.features[0].geometry.coordinates;
+                    }
+                    throw new Error('Location not found');
+                });
+        }
+
+async function getDirections() {
+    var startPlace = document.getElementById('start-location').value;
+    var endPlace = document.getElementById('end-location').value;
+
+    try {
+        let startCoordinates = await getCoordinatesForPlace(startPlace);
+        let endCoordinates = await getCoordinatesForPlace(endPlace);
+
+        if (startCoordinates && endCoordinates) {
+            let start = startCoordinates.join(",");
+            let end = endCoordinates.join(",");
+
+            fetch('/Home/ProxyMapboxRequest?query=directions/v5/mapbox/driving/' + start + ';' + end + '.json?access_token=' + '@ViewBag.MapboxApiKey')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Full Route Response:', data);
+                    if (data && data.routes && data.routes.length > 0) {
+                        console.log('Route Details:', data.routes[0]);
+                        if (data.routes[0].geometry) {
+                            
+                            var route = polyline.decode(data.routes[0].geometry);
+
+                            var startPoint = {
+                                type: 'Point',
+                                coordinates: [route[0][1], route[0][0]] 
+                            };
+                            var endPoint = {
+                                type: 'Point',
+                                coordinates: [route[route.length - 1][1], route[route.length - 1][0]] 
+                            };
+
+
+                            ['start-point', 'end-point'].forEach(function (id) {
+                                if (map.getLayer(id)) {
+                                    map.removeLayer(id);
+                                }
+                                if (map.getSource(id)) {
+                                    map.removeSource(id);
+                                }
+                            });
+
+                            map.addSource('start-point', {
+                                type: 'geojson',
+                                data: {
+                                    type: 'Feature',
+                                    geometry: startPoint
+                                }
+                            });
+                            map.addLayer({
+                                id: 'start-point',
+                                source: 'start-point',
+                                type: 'circle',
+                                paint: {
+                                    'circle-radius': 10,
+                                    'circle-color': '#5D6D7E'
+                                }
+                            });
+
+                            map.addSource('end-point', {
+                                type: 'geojson',
+                                data: {
+                                    type: 'Feature',
+                                    geometry: endPoint
+                                }
+                            });
+                            map.addLayer({
+                                id: 'end-point',
+                                source: 'end-point',
+                                type: 'circle',
+                                paint: {
+                                    'circle-radius': 10,
+                                    'circle-color': '#E74C3C'
+                                }
+                            });
+
+
+                            var geojson = {
+                                type: 'Feature',
+                                properties: {},
+                                geometry: {
+                                    type: 'LineString',
+                                    coordinates: route.map(coordPair => [coordPair[1], coordPair[0]]) 
+                                }
+                            };
+                            
+                            if (map.getSource('route')) {
+                                map.removeLayer('route');
+                                map.removeSource('route');
+                            }
+
+                            map.addSource('route', {
+                                type: 'geojson',
+                                data: geojson
+                            });
+
+                            map.addLayer({
+                                id: 'route',
+                                type: 'line',
+                                source: 'route',
+                                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                                paint: { 'line-color': '#3498DB', 'line-width': 4 }
+                            });
+
+                            // Adjusting map to fit the route block boundary
+                            const coordinates = geojson.geometry.coordinates;
+                            const bounds = coordinates.reduce((bounds, coord) => bounds.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+                            map.fitBounds(bounds, {
+                                padding: 20 
+                            });
+
+                        } else {
+                            console.error('Missing geometry in route data:', data.routes[0]);
+                        }
+                    } else {
+                        console.error('Unexpected API response structure:', data);
+                    }
+                });
+        }
+    } catch (error) {
+        console.error('Error fetching coordinates:', error);
+    }
+}
+
+
+    </script>
+}

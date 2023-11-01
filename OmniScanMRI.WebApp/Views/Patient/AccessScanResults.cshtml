@@ -1,0 +1,40 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model IEnumerable<ScanResultViewModel>
+
+@{
+    ViewBag.Title = "Your Scan Results";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Your Scan Results</h2>
+
+@if (Model.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Date Taken</th>
+                <th>Uploaded By</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var scan in Model)
+            {
+                <tr>
+                    <td>@scan.DateTaken.ToShortDateString()</td>
+                    <td>@scan.UploadedBy</td>
+                    <td>
+                        <a href="@Url.Content(scan.FilePath)" target="_blank">View Result</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        You don't have any scan results available at the moment.
+    </div>
+}

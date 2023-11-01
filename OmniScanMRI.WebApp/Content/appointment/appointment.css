@@ -1,0 +1,58 @@
+﻿/* Base styling */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.appointment-form {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #fff;
+    padding: 30px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+    .appointment-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .appointment-form select,
+    .appointment-form input,
+    .appointment-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .appointment-form button {
+        background-color: #007BFF;
+        color: #fff;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .appointment-form button:hover {
+            background-color: #0056b3;
+        }
+
+    /* Placeholder color */
+    .appointment-form ::-webkit-input-placeholder {
+        color: #aaa;
+    }
+
+    .appointment-form ::-moz-placeholder {
+        color: #aaa;
+    }
+
+    .appointment-form :-ms-input-placeholder {
+        color: #aaa;
+    }
+
+    .appointment-form :-moz-placeholder {
+        color: #aaa;
+    }

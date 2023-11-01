@@ -1,0 +1,36 @@
+﻿@model IEnumerable<System.Security.Claims.Claim>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inspect Claims</title>
+</head>
+<body>
+    <h1>User Claims</h1>
+
+    @if (Model != null && Model.Any())
+    {
+        <table border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model)
+                {
+                    <tr>
+                        <td>@claim.Type</td>
+                        <td>@claim.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No claims available.</p>
+    }
+</body>
+</html>

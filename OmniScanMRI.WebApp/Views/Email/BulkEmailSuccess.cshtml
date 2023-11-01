@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Bulk Email Delivery Confirmation";
+}
+
+<h2>Bulk Emails Sent Notice!</h2>
+<p>Bulk emails have been sent. Thank you!</p>
+<p id="refreshReady"></p>
+@section Scripts {
+    <script type="text/javascript">
+        setTimeout(function () {
+            window.location.href = '/Administrator/UserManagement';
+        }, 3000);
+    </script>
+
+}

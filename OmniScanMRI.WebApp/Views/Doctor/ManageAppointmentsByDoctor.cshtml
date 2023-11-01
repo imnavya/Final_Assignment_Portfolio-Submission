@@ -1,0 +1,51 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model IEnumerable<Appointments>
+
+@{
+    ViewBag.Title = "Manage Patient Appointments by Doctor";
+}
+
+<h2>Manage Appointments</h2>
+
+
+<table id="appointmentsTable" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th>Appointment Date & Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var appointment in Model)
+        {
+            <tr>
+                <td>@appointment.Patient.FirstName @appointment.Patient.LastName</td>
+                <td>@appointment.Doctor.FirstName @appointment.Doctor.LastName</td>
+                <td>@appointment.AppointmentDttm.ToString("f")</td>
+                <td>@appointment.Status</td>
+                <td>
+                    @Html.ActionLink("View", "ViewAppointmentByDoctor", "Doctor", new { id = appointment.AppointmentID }, null) |
+                    @Html.ActionLink("Cancel", "CancelAppointmentByDoctor", "Doctor", new { id = appointment.AppointmentID }, null) |
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            jQuery('#appointmentsTable').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "searching": true,
+                "order": [[4, 'desc']]
+            });
+        });
+    </script>
+}

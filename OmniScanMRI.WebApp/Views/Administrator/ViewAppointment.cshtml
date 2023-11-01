@@ -1,0 +1,25 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model  Appointments
+
+<h2>Appointment Details</h2>
+
+<div>
+    <label>Date & Time:</label>
+    <span>@Model.AppointmentDttm</span>
+</div>
+<div>
+    <label>Patient:</label>
+    <span>@Model.Patient.FirstName @Model.Patient.LastName</span>
+</div>
+<div>
+    <label>Doctor:</label>
+    <span>@Model.Doctor.FirstName @Model.Doctor.LastName (@Model.Doctor.Specialization)</span>
+</div>
+<div>
+    <label>Notes:</label>
+    <span>@Model.Notes</span>
+</div>
+<div>
+    <label>Status:</label>
+    <span>@Model.Status</span>
+</div>

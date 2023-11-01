@@ -1,0 +1,39 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model Appointments
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Admin Dashboard";
+}
+<link rel="stylesheet" href="~/Content/bootstrap.min.css">
+<link rel="stylesheet" href="~/Content/css/style.css">
+<div class="container">
+    <div class="row">
+        <!-- Left Column: Patient Options -->
+        <div class="col-md-8">
+            <h2>Welcome, @User.Identity.Name!</h2>
+
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="@Url.Action("ManageReports", "Doctor")">Manage Patient Reports</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="@Url.Action("ManageAppointmentsByDoctor", "Doctor")">Manage Patient Appointments</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="@Url.Action("CustomerSupport", "Home")">Customer Support Services</a>
+                </li>
+            </ul>
+        </div>
+
+        
+        <div class="col-md-4">
+            <img src="~/Content/images/patientHome.jpg" style="max-width:300px; height:auto;" alt="Placeholder Image" class="img-responsive" id="placeholder-image" /> 
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        
+    </script>
+}

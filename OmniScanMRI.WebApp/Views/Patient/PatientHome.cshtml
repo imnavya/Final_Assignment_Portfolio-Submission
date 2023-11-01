@@ -1,0 +1,55 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model Appointments
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Patient Dashboard";
+}
+<link rel="stylesheet" href="~/Content/bootstrap.min.css">
+<link rel="stylesheet" href="~/Content/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
+<div class="container">
+    <div class="row">
+        
+        <div class="col-md-8">
+            <h2>Welcome, @User.Identity.Name!</h2>
+
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="@Url.Action("ManageAppointments", "Appointment")">Manage Appointments</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="@Url.Action("AccessScanResults", "Patient")">Access Scan Results</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="@Url.Action("CustomerSupport", "Home")">Customer Support Services</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <img src="~/Content/images/patientHome.jpg" style="max-width:350px; height:auto;" alt="Placeholder Image" class="img-responsive" id="placeholder-image" /> 
+        </div>
+        <div class="overall-rating-section">
+            <h4>Overall Appointment Experience Rating:</h4>
+
+            <div class="rating-container">
+                <span id="doubleRating"></span>
+                <div id="overallRateYo"></div>
+                <p>Based on @Html.Raw(Json.Encode(ViewBag.TotalRatings)) OmniScanMRI appointment reviews</p>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
+    <script>
+    var overallRating = @Html.Raw(Json.Encode(ViewBag.OverallRating));
+    $("#doubleRating").text(overallRating.toFixed(1));  
+    $("#overallRateYo").rateYo({
+        rating: overallRating,
+        readOnly: true
+    });
+    </script>
+}

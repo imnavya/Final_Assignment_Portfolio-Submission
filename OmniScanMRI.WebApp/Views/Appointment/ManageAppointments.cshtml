@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNet.Identity
+@using OmniScanMRI.WebApp.Models
+@model Appointments
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Manage Appointments";
+}
+<link rel="stylesheet" href="~/Content/bootstrap.min.css">
+<link rel="stylesheet" href="~/Content/css/style.css">
+<div class="container">
+    <div class="row">
+        
+        <div class="col-md-8">
+            <h2>Welcome, @User.Identity.Name!</h2>
+
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="@Url.Action("BookAppointment", "Appointment")">Book Appointment</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="@Url.Action("ViewAppointments", "Appointment", new { patientId = User.Identity.GetUserId() })">View Appointments</a>
+                </li>
+            </ul>
+        </div>
+
+        
+        <div class="col-md-4">
+            <img src="~/Content/images/patientHome.jpg" style="max-width:300px; height:auto;" alt="Placeholder Image" class="img-responsive" id="placeholder-image" /> <!-- Update src with your image path -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+    </script>
+}

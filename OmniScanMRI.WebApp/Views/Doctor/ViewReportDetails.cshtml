@@ -1,0 +1,105 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model ScanDetails
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "View Report Details";
+}
+<link rel="stylesheet" href="~/Content/css/style.css">
+
+<div id="container" class="container">
+    <h2>Report Details</h2>
+
+    <h3>Patient Details</h3>
+    <div class="form-group">
+        @Html.Label("Patient Name: ", new { @class = "control-label col-md-2 headerBold" })
+        <div class="col-md-10">
+            @Html.DisplayFor(model => model.Patient.FirstName) @Html.DisplayFor(model => model.Patient.LastName)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Type of Scan: ", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DisplayFor(model => model.FileName)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Date Taken: ", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DisplayFor(model => model.DateTaken)
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">MRI Scan Image</label>
+        <div class="col-md-10">
+            <img src="@Url.Content(Model.FilePath)" alt="@Model.FileName" class="img-responsive" style="max-width:300px;height:auto;" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Doctor Notes: ", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DisplayFor(model => model.DoctorsNotes, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Medical History: ", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DisplayFor(model => model.MedicalHistory, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+
+    @*<a href="@Url.Action("DownloadReportAsPdf", "Doctor")" class="btn btn-primary">Download Report as PDF</a>*@
+
+
+
+
+</div>
+<button id="downloadPdf">Download PDF</button>
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#downloadPdf').click(function () {
+                var element = $('#container').get(0);
+
+                if (element) {
+                    console.log("Element found!");
+
+                    // Increase the scale factor for better clarity
+                    html2canvas(element, { scale: 5 }).then(function (canvas) {
+                        var imgData = canvas.toDataURL('image/png');
+
+                        var pdfWidth = 230; 
+                        var pdfHeight = 300; 
+
+                        var aspectRatio = canvas.width / canvas.height;
+                        var newCanvasHeight = pdfHeight / aspectRatio;
+
+                        if (newCanvasHeight > pdfHeight) {
+                            newCanvasHeight = pdfHeight;
+                            pdfWidth = pdfHeight * aspectRatio;
+                        }
+
+                        var pdf = new window.jspdf.jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: 'a4'
+                        });
+
+                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, newCanvasHeight);
+                        pdf.save('report.pdf');
+                    });
+                } else {
+                    console.log("Element not found!");
+                }
+            });
+        });
+    </script>
+
+}

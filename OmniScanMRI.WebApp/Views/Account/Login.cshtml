@@ -1,0 +1,62 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model LoginViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Login";
+}
+
+<link rel="stylesheet" href="@Url.Content("~/Content/login/loginpage.css")">
+
+<main aria-labelledby="title" class="login-container">
+    <h2 id="title">OmniScanMRI</h2>
+
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <div class="col-md-8">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+
+                <input type="submit" value="Login with Email" class="btn btn-outline-dark" />
+            </div>
+        </div>
+    }
+
+    <div class="col-md-4">
+        <section id="socialLoginForm">
+
+            <div class="or-section">
+                OR CONTINUE WITH
+            </div>
+
+            <div class="social-login">
+                <button id="btnMicrosoft">Microsoft</button>
+                @*<button id="btnGoogle">Google</button>*@
+            </div>
+
+            <div class="terms">
+                By continuing, you agree to our terms of services and privacy policy
+            </div>
+
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        document.getElementById('btnMicrosoft').addEventListener('click', function (e) {
+            e.preventDefault();
+            console.log('Microsoft login button clicked.');
+            window.location.href = "/Account/LoginWithMicrosoft";
+        });
+    </script>
+}

@@ -1,0 +1,45 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model  Appointments
+
+@{
+    ViewBag.Title = "Edit Appointment";
+}
+
+<h2>Edit Appointment</h2>
+
+@using (Html.BeginForm("EditAppointmentByAdmin", "Administrator", FormMethod.Post, new { role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.DoctorID, "Select Doctor")
+        @Html.DropDownListFor(m => m.DoctorID, Model.DoctorsList, "Please choose a Doctor...", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.DoctorID)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.AppointmentDttm, "Appointment Date & Time")
+        @Html.EditorFor(m => m.AppointmentDttm, new { htmlAttributes = new { @class = "form-control datepicker" } })
+        @Html.ValidationMessageFor(m => m.AppointmentDttm)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Notes, "Additional Notes")
+        @Html.TextAreaFor(m => m.Notes, new { htmlAttributes = new { @class = "form-control", rows = "4" } })
+        @Html.ValidationMessageFor(m => m.Notes)
+    </div>
+
+
+    @Html.HiddenFor(m => m.AppointmentID)
+    @Html.HiddenFor(m => m.PatientID)
+    @Html.HiddenFor(m => m.Status)
+
+
+    <div class="form-group">
+        <input type="submit" value="Save Changes" class="btn btn-primary" />
+    </div>
+}
+<div>
+    @Html.ActionLink("Back to Appointments", "ViewAppointment", new { id = Model.AppointmentID })
+</div>
+

@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Doctor Appointment Statistics</h2>
+<canvas id="doctorAptChart" width="400" height="200"></canvas>
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('@Url.Action("GetAppointmentsPerDoctor", "Administrator")')
+            .then(response => response.json())
+            .then(data => {
+                var ctx = document.getElementById('doctorAptChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.DoctorName),
+                        datasets: [{
+                            label: 'Number of Appointments',
+                            data: data.map(item => item.AppointmentCount),
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+                            borderColor: 'rgba(75, 192, 192, 1)', 
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    });
+    </script>
+}

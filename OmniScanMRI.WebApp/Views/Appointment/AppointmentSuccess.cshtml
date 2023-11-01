@@ -1,0 +1,48 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model Appointments
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Appointment Confirmation";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
+
+<h2>Appointment Confirmation</h2>
+
+<div class="alert alert-success">
+    Your Appointment with Dr. @Html.DisplayFor(m => m.Doctor.FirstName) @Html.DisplayFor(m => m.Doctor.LastName) is confirmed for @Html.DisplayFor(m => m.AppointmentDttm).
+</div>
+
+
+<div id="ratingDiv">
+    <h4>Rate Your Booking Experience:</h4>
+    <div id="rateYo"></div>
+    <button id="submitRating" class="btn btn-primary">Submit Rating</button>
+</div>
+
+
+<div>
+    @Html.ActionLink("View Appointments", "ViewAppointments", "Appointment", new { patientId = Model.PatientID }, new { @class = "btn btn-primary" })
+</div>
+
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
+    <script>
+    $("#rateYo").rateYo({
+        fullStar: true
+    });
+
+    $("#submitRating").click(function() {
+        var rating = $("#rateYo").rateYo("rating");
+        $.post('@Url.Action("SaveRating", "AppointmentRating")', { ratedValue: rating, appointmentId: '@Model.AppointmentID' }, function(data) {
+            if(data.success) {
+                $("#ratingDiv").html('<div class="alert alert-success">Thank you for your feedback!</div>');
+            } else {
+                alert('There was an error saving your rating. Please try again.');
+            }
+        });
+    });
+    </script>
+}

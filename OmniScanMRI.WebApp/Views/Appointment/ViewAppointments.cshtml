@@ -1,0 +1,62 @@
+﻿@using OmniScanMRI.WebApp.Models
+@model IEnumerable<Appointments>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "View Appointments";
+
+}
+
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+<h2>Appointments</h2>
+
+<table id="appointmentsTab" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Appointment Date & Time</th>
+            <th>Doctor</th>
+            <th>Admin</th>
+            <th>Notes</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var appointment in Model)
+        {
+            <tr>
+                <td>@appointment.AppointmentDttm.ToString("g")</td>
+                <td>@appointment.Doctor.FirstName @appointment.Doctor.LastName</td>
+                <td>@(appointment.Administrator != null ? appointment.Administrator.FirstName : "N/A")</td> 
+                <td>@appointment.Notes</td>
+                <td>@appointment.Status</td>
+                <td>
+                    @Html.ActionLink("Edit", "EditAppointments", "Appointment", new { appointmentId = appointment.AppointmentID }, null)
+
+                    @using (Html.BeginForm("CancelAppointment", "Appointment", new { appointmentId = appointment.AppointmentID }, FormMethod.Post))
+                    {
+                        <input type="submit" value="Cancel" class="link-button" onclick="return confirm('Are you sure you want to cancel this appointment?');" />
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            jQuery('#appointmentsTab').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "searching": true,
+                "order": [[4, 'desc']]
+            });
+        });
+    </script>
+}
+
+
